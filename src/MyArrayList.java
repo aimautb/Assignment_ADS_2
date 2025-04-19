@@ -3,16 +3,20 @@ import java.util.Iterator;
 public class MyArrayList<T extends Comparable<T>> implements MyList<T> {
     private Object[] data;
     private int size;
+    private static final int DEFAULT_CAPACITY = 10;
 
     public MyArrayList() {
-        data = new Object[10]; // sdes typo nachalka of capacitygoi pochemuto problema wyga bered wyga bered omiiiiririiri reia ifi dis ia
+        data = new Object[DEFAULT_CAPACITY];
         size = 0;
     }
 
     private void ensureCapacity() {
         if (size == data.length) {
             Object[] newData = new Object[data.length * 2];
-            System.arraycopy(data, 0, newData, 0, size);
+
+            for (int i = 0; i < size; i++) {
+                newData[i] = data[i];
+            }
             data = newData;
         }
     }
@@ -37,7 +41,10 @@ public class MyArrayList<T extends Comparable<T>> implements MyList<T> {
     public void add(int index, T item) {
         if (index < 0 || index > size) throw new IndexOutOfBoundsException();
         ensureCapacity();
-        System.arraycopy(data, index, data, index + 1, size - index);
+
+        for (int i = size; i > index; i--) {
+            data[i] = data[i - 1];
+        }
         data[index] = item;
         size++;
     }
@@ -49,6 +56,7 @@ public class MyArrayList<T extends Comparable<T>> implements MyList<T> {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public T get(int index) {
         if (index < 0 || index >= size) throw new IndexOutOfBoundsException();
         return (T) data[index];
@@ -67,7 +75,10 @@ public class MyArrayList<T extends Comparable<T>> implements MyList<T> {
     @Override
     public void remove(int index) {
         if (index < 0 || index >= size) throw new IndexOutOfBoundsException();
-        System.arraycopy(data, index + 1, data, index, size - index - 1);
+
+        for (int i = index; i < size - 1; i++) {
+            data[i] = data[i + 1];
+        }
         size--;
         data[size] = null;
     }
@@ -86,7 +97,9 @@ public class MyArrayList<T extends Comparable<T>> implements MyList<T> {
     public void sort() {
         for (int i = 0; i < size - 1; i++) {
             for (int j = 0; j < size - i - 1; j++) {
+                @SuppressWarnings("unchecked")
                 T left = (T) data[j];
+                @SuppressWarnings("unchecked")
                 T right = (T) data[j + 1];
                 if (left.compareTo(right) > 0) {
                     Object temp = data[j];
@@ -121,14 +134,16 @@ public class MyArrayList<T extends Comparable<T>> implements MyList<T> {
     @Override
     public Object[] toArray() {
         Object[] result = new Object[size];
-        System.arraycopy(data, 0, result, 0, size);
+        for (int i = 0; i < size; i++) {
+            result[i] = data[i];
+        }
         return result;
     }
 
     @Override
     public void clear() {
         size = 0;
-        data = new Object[10];
+        data = new Object[DEFAULT_CAPACITY];
     }
 
     @Override
@@ -139,7 +154,7 @@ public class MyArrayList<T extends Comparable<T>> implements MyList<T> {
     @Override
     public Iterator<T> iterator() {
         return new Iterator<T>() {
-            int index = 0;
+            private int index = 0;
 
             @Override
             public boolean hasNext() {
@@ -147,6 +162,7 @@ public class MyArrayList<T extends Comparable<T>> implements MyList<T> {
             }
 
             @Override
+            @SuppressWarnings("unchecked")
             public T next() {
                 return (T) data[index++];
             }
